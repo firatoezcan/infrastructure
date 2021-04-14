@@ -9,6 +9,21 @@
 
 ---
 
+## **If you live on the edge and want to run a single block, run this**
+
+```
+grep -qxF 'export MKCERT_CAROOT=$(mkcert -CAROOT)' ~/.bashrc || echo 'export MKCERT_CAROOT=$(mkcert -CAROOT)' >> ~/.bashrc
+test -f /usr/local/bin/k3s-uninstall.sh && /usr/local/bin/k3s-uninstall.sh
+curl -sfL https://get.k3s.io | sh -
+sudo k3s kubectl get namespace
+sh copyK3sToConfig.sh
+helm plugin install https://github.com/jkroepke/helm-secrets`
+helm plugin install https://github.com/databus23/helm-diff
+helmfile apply
+kubectl create namespace test
+kubectl apply -f manifest.yaml
+```
+
 ### **Add MKCERT_CAROOT to your environment**
 
 `grep -qxF 'export MKCERT_CAROOT=$(mkcert -CAROOT)' ~/.bashrc || echo 'export MKCERT_CAROOT=$(mkcert -CAROOT)' >> ~/.bashrc`
@@ -29,9 +44,9 @@
 
 `sh copyK3sToConfig.sh`
 
-### Install helm dependencies for helmfile
+### **Install helm dependencies for helmfile**
 
-`helm plugin install https://github.com/jkroepke/helm-secrets`
+`helm plugin install https://github.com/jkroepke/helm-secrets`  
 `helm plugin install https://github.com/databus23/helm-diff`
 
 # Setting up Traefik locally
