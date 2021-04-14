@@ -1,0 +1,48 @@
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: {{ .Values.letsEncryptEmail }}
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+      - http01:
+          ingress:
+            class: traefik
+        selector: {}
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: {{ .Values.letsEncryptEmail }}
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+      - http01:
+          ingress:
+            class: traefik
+        selector: {}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mkcert-ca-pair
+  namespace: cert-manager
+data:
+  tls.crt: {{ .Values.mkcertCrt }}
+  tls.key: {{ .Values.mkcertKey }}
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: mkcert-local
+spec:
+  ca:
+    secretName: mkcert-ca-pair

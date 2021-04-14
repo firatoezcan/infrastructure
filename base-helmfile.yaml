@@ -1,0 +1,36 @@
+repositories:
+  - name: jetstack
+    url: https://charts.jetstack.io
+
+helmDefaults:
+  # wait for k8s resources via --wait. (default false)
+  wait: true
+  # time in seconds to wait for any individual Kubernetes operation (like Jobs for hooks, and waits on pod/pvc/svc/deployment readiness) (default 300)
+  timeout: 600
+  # forces resource update through delete/recreate if needed (default false)
+  force: true
+  # limit the maximum number of revisions saved per release. Use 0 for no limit. (default 10)
+  historyMax: 10
+  # when using helm 3.2+, automatically create release namespaces if they do not exist (default true)
+  createNamespace: true
+
+releases:
+  - name: cert-manager
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    version: "v1.3.0"
+    values:
+      # Value files passed via --values
+      - values/cert-manager.yaml
+    hooks:
+      - events: ["postuninstall"]
+        showlogs: true
+        command: "kubectl"
+        args:
+          - delete
+          - namespace
+          - cert-manager
+      - events: ["postsync"]
+        showlogs: true
+        command: "sleep"
+        args: ["15"]
