@@ -8,15 +8,24 @@ helmDefaults:
   # limit the maximum number of revisions saved per release. Use 0 for no limit. (default 10)
   historyMax: 10
   # when using helm 3.2+, automatically create release namespaces if they do not exist (default true)
-  createNamespace: true
+  createNamespace: false
 
 releases:
-  # Local chart example
   - name: cluster-config
     chart: ./cluster-config
+    force: false
     values:
       - letsEncryptEmail: user@example.com
       - mkcertCrt: {{ requiredEnv "MKCERT_CAROOT" | printf "%s/rootCA.pem" | readFile  | b64enc }}
       - mkcertKey: {{ requiredEnv "MKCERT_CAROOT" | printf "%s/rootCA-key.pem" | readFile  | b64enc }}
+    # Creating default buckets like this doesnt work, create the default bucket manually
+    # hooks:
+    #   - events: ["postsync"]
+    #     showlogs: true
+    #     command: "sh"
+    #     args:
+    #       - createDefaultBuckets.sh
+    #       - harbor
+    #       - harbor
 helmfiles:
   - path: base-helmfile.yaml

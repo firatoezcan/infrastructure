@@ -1,3 +1,16 @@
 letsEncryptEmail:
 mkcertCrt:
 mkcertKey:
+
+# minioTenants: []
+minioTenants:
+  - name: harbor
+    namespace: harbor
+    storage: 1Gi
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 2
+        memory: 3Gi

@@ -1,13 +1,23 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema",
-  "required": [
-    "letsEncryptEmail",
-    "mkcertCrt",
-    "mkcertKey"
-  ],
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
   "properties": {
     "letsEncryptEmail": {
       "type": "string"
+    },
+    "minioTenants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        }
+      }
     },
     "mkcertCrt": {
       "type": "string"
