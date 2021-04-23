@@ -1,0 +1,62 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "minio-{{ .Values.name }}-create-default-bucket-job"
+  labels:
+    app: "minio-{{ .Values.name }}-create-default-bucket-job"
+  namespace: {{ .Values.namespace }}
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    metadata:
+      labels:
+        app: minio-{{ .Values.name }}-create-default-bucket-job
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: minio-mc
+        image: minio/mc:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "minio-creds-secret-{{ .Values.name }}"
+              key: accesskey
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "minio-creds-secret-{{ .Values.name }}"
+              key: secretkey
+        - name: REGION_ENDPOINT
+          value: "http://minio-{{ .Values.name }}-hl:9000"
+        - name: DEFAULTBUCKETS
+          value: {{ .Values.defaultbuckets }}
+        command: ["/bin/bash", "-ce"]
+        args:
+        - | 
+          if [[ -z "${DEFAULTBUCKETS}" ]]; then
+            exit 0
+          fi
+          checkBucketExists() {
+            ebucket=$1
+            CMD=$(${MC} ls myminio | grep "\s$ebucket/$" > /dev/null 2>&1)
+            return $?
+          }
+          MC="mc --insecure"
+          ${MC} config host add myminio $REGION_ENDPOINT $MINIO_ACCESS_KEY $MINIO_SECRET_KEY
+          # Create the bucket if it does not exist
+          for iBUCKET in $DEFAULTBUCKETS
+          do
+            if ! checkBucketExists $iBUCKET; then
+              echo "Creating bucket $iBUCKET"
+              ${MC} mb myminio/$iBUCKET
+            else
+              echo "Bucket $iBUCKET already exists."
+            fi
+          done

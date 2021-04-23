@@ -4,7 +4,7 @@ helmDefaults:
   # time in seconds to wait for any individual Kubernetes operation (like Jobs for hooks, and waits on pod/pvc/svc/deployment readiness) (default 300)
   timeout: 600
   # forces resource update through delete/recreate if needed (default false)
-  force: true
+  force: false
   # limit the maximum number of revisions saved per release. Use 0 for no limit. (default 10)
   historyMax: 10
   # when using helm 3.2+, automatically create release namespaces if they do not exist (default true)
@@ -18,6 +18,10 @@ releases:
       - letsEncryptEmail: user@example.com
       - mkcertCrt: {{ requiredEnv "MKCERT_CAROOT" | printf "%s/rootCA.pem" | readFile  | b64enc }}
       - mkcertKey: {{ requiredEnv "MKCERT_CAROOT" | printf "%s/rootCA-key.pem" | readFile  | b64enc }}
+  - name: harbor-minio
+    chart: ./minio-tenant
+    namespace: harbor
+    force: false
     # Creating default buckets like this doesnt work, create the default bucket manually
     # hooks:
     #   - events: ["postsync"]

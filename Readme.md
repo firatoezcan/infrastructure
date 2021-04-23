@@ -68,7 +68,7 @@ Otherwise read this blogpost to setup `dnsmasq`: [Kubernetes & Traefik locally w
 
 `sh fixCRDs.sh`
 
-### **Setup the default cluster configuration (only cert manager for now)**
+### **Setup the default cluster configuration**
 
 `helmfile apply`
 
@@ -81,7 +81,7 @@ kubectl apply -f manifest.yaml
 
 ### **Services that are pre-deployed**
 
-For convenience `minio-operator` is already deployed so you can add S3 storage into your namespaces via `./cluster-config/values.yaml`.  
+For convenience `minio-operator` is already deployed so you can add S3 storage into your namespaces via the `minio-tenant` chart (example usage in `base-helmfile.yaml`).  
 `harbor` is also deployed as your local docker registry and helm repository.
 
 You can reach the services if you added those entries to your `/etc/hosts` via:

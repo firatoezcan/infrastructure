@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "minio-{{ .Values.name }}"
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  tls:
+    - secretName: "minio-tls-cert-{{ .Values.name }}"
+      hosts:
+        - {{ .Values.name }}.minio.local.dev
+  rules:
+    - host: {{ .Values.name }}.minio.local.dev
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: "minio"
+              port:
+                number: 80
+---
+apiVersion: cert-manager.io/v1alpha2
+kind: Certificate
+metadata:
+  name: "minio-cert-{{ .Values.name }}"
+spec:
+  isCA: true
+  commonName: "minio-cn-{{ .Values.name }}"
+  secretName: "minio-tls-cert-{{ .Values.name }}"
+  dnsNames:
+    - {{ .Values.name }}.minio.local.dev
+  issuerRef:
+    name: {{ .Values.clusterissuer }}
+    kind: ClusterIssuer

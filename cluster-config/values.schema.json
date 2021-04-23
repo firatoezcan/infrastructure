@@ -5,20 +5,6 @@
     "letsEncryptEmail": {
       "type": "string"
     },
-    "minioTenants": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          },
-          "namespace": {
-            "type": "string"
-          }
-        }
-      }
-    },
     "mkcertCrt": {
       "type": "string"
     },
